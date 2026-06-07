@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: restaurant_postgres
+    environment:
+      POSTGRES_DB: restaurant
+      POSTGRES_USER: restaurant_user
+      POSTGRES_PASSWORD: restaurant_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: restaurant_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: restaurant_user
+      RABBITMQ_DEFAULT_PASS: restaurant_pass
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+      build: .
+      container_name: restaurant_app
+      ports:
+        - "8040:8040"
+      environment:
+        DATASOURCES_DEFAULT_URL: jdbc:postgresql://postgres:5432/restaurant
+        DATASOURCES_DEFAULT_USERNAME: restaurant_user
+        DATASOURCES_DEFAULT_PASSWORD: restaurant_pass
+        RABBITMQ_URI: amqp://restaurant_user:restaurant_pass@rabbitmq:5672
+        TELEGRAM_BOT_TOKEN: YOUR_TELEGRAM_BOT_TOKEN
+        TELEGRAM_BOT_USERNAME: your_bot_username
+      depends_on:
+        postgres:
+          condition: service_started
+        rabbitmq:
+          condition: service_healthy
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
