@@ -17,3 +17,4 @@ build/
 
 # Environment
 application-local.properties
+/home/myubu/Downloads/restaurant/src/main/resources/.env
