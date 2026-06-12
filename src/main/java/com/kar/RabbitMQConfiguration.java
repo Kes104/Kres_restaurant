@@ -7,6 +7,7 @@ import io.micronaut.rabbitmq.connect.ChannelPool;
 import jakarta.annotation.PostConstruct;
 import jakarta.inject.Singleton;
 
+@Context
 @Singleton
 public class RabbitMQConfiguration {
 
